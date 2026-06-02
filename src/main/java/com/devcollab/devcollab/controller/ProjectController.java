@@ -32,8 +32,8 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getProjectById(id));
     }
 
-    @PostMapping("/{projectId}/members/{userId}")
-    public ResponseEntity<ProjectResponseDTO> addMember(
+    @PatchMapping("/{projectId}/members/{userId}")
+    public ResponseEntity<ProjectResponseDTO> addMemberToProject(
             @PathVariable String projectId,
             @PathVariable String userId) {
         return ResponseEntity.ok(projectService.addMember(projectId, userId));
