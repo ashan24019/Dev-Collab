@@ -1,6 +1,8 @@
 package com.devcollab.devcollab.dto;
 
+import com.devcollab.devcollab.enums.TaskPriority;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -23,8 +25,8 @@ public class CreateTaskDTO {
 
     private String assignedToId;
 
-    @NotBlank(message = "Priority is required")
-    private String priority;
+    @NotNull(message = "Priority is required")
+    private TaskPriority priority;
 
     private LocalDateTime dueDate;
 }

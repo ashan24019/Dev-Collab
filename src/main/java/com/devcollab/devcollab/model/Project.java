@@ -1,5 +1,6 @@
 package com.devcollab.devcollab.model;
 
+import com.devcollab.devcollab.enums.ProjectStatus;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -25,7 +26,7 @@ public class Project {
 
     private List<String> memberIds = new ArrayList<>();   // references Users
 
-    private String status;    // "ACTIVE", "COMPLETE", "ARCHIVED"
+    private ProjectStatus status;
 
     @CreatedDate
     private LocalDateTime createdAt;

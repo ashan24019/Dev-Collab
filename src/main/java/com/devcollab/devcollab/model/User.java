@@ -1,5 +1,6 @@
 package com.devcollab.devcollab.model;
 
+import com.devcollab.devcollab.enums.UserRole;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -19,6 +20,6 @@ public class User {
 
     private String password;
 
-    private String role; // "ADMIN" or "MEMBER"
+    private UserRole role;
 
 }

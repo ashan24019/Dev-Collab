@@ -1,5 +1,6 @@
 package com.devcollab.devcollab.dto;
 
+import com.devcollab.devcollab.enums.TaskStatus;
 import com.devcollab.devcollab.model.Task;
 
 public class TaskMapper {
@@ -13,7 +14,7 @@ public class TaskMapper {
         task.setCreatedById(dto.getCreatedById());
         task.setAssignedToId(dto.getAssignedToId());
         task.setPriority(dto.getPriority());
-        task.setStatus("TODO");
+        task.setStatus(TaskStatus.TODO);
         task.setDueDate(dto.getDueDate());
 
         return task;
