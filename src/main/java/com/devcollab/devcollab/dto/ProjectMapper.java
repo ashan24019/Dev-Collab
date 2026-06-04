@@ -1,5 +1,6 @@
 package com.devcollab.devcollab.dto;
 
+import com.devcollab.devcollab.enums.ProjectStatus;
 import com.devcollab.devcollab.model.Project;
 
 public class ProjectMapper {
@@ -9,7 +10,7 @@ public class ProjectMapper {
         project.setName(dto.getName());
         project.setDescription(dto.getDescription());
         project.setOwnerId(dto.getOwnerId());
-        project.setStatus("ACTIVE");
+        project.setStatus(ProjectStatus.ACTIVE);
 
         return project;
     }

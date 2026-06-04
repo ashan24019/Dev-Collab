@@ -1,5 +1,6 @@
 package com.devcollab.devcollab.dto;
 
+import com.devcollab.devcollab.enums.ProjectStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ public class ProjectResponseDTO {
 
     private List<String> memberIds;
 
-    private String status;
+    private ProjectStatus status;
 
     private LocalDateTime createdAt;
 

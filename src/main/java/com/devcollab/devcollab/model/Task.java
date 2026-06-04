@@ -1,5 +1,7 @@
 package com.devcollab.devcollab.model;
 
+import com.devcollab.devcollab.enums.TaskPriority;
+import com.devcollab.devcollab.enums.TaskStatus;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -25,9 +27,9 @@ public class Task {
 
     private String assignedToId;
 
-    private String priority; // "LOW", "MEDIUM", "HIGH"
+    private TaskPriority priority;
 
-    private String status;   // "TODO", "IN_PROGRESS", "DONE"
+    private TaskStatus status;
 
     private LocalDateTime dueDate;
 
