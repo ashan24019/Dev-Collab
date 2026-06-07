@@ -1,0 +1,5 @@
+spring.application.name=devcollab
+server.port=8080
+spring.data.mongodb.uri=YOUR_MONGODB_URI
+jwt.secret=YOUR_JWT_SECRET
+jwt.expiration=86400000
