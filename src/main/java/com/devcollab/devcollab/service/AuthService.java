@@ -1,5 +1,6 @@
 package com.devcollab.devcollab.service;
 
+import com.devcollab.devcollab.config.JwtService;
 import com.devcollab.devcollab.dto.AuthResponseDTO;
 import com.devcollab.devcollab.dto.LoginRequestDTO;
 import com.devcollab.devcollab.dto.RegisterRequestDTO;
@@ -21,6 +22,9 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtService jwtService;
+
     public AuthResponseDTO register(RegisterRequestDTO dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new UsernameNotFoundException("Email already exists");
@@ -34,8 +38,10 @@ public class AuthService {
 
         User saved = userRepository.save(user);
 
+        String token = jwtService.generateToken(saved.getId(), saved.getRole().name());
+
         return new AuthResponseDTO(
-                "token will add", //TODO
+                token,
                 saved.getId(),
                 saved.getName(),
                 saved.getEmail(),
@@ -51,8 +57,10 @@ public class AuthService {
             throw new RuntimeException("Invalid email or password"); // Never tell attacker which one is the wrong
         }
 
+        String token = jwtService.generateToken(user.getId(), user.getRole().name());
+
         return new AuthResponseDTO(
-                "Token will add", //TODO
+                token,
                 user.getId(),
                 user.getEmail(),
                 user.getEmail(),
