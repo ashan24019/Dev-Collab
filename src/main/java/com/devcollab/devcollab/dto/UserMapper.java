@@ -9,7 +9,7 @@ public class UserMapper {
 
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword()); //TODO: Need to hash
+        user.setPassword(dto.getPassword());
 
         return user;
     }
