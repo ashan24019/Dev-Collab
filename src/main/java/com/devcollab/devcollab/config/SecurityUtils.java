@@ -1,0 +1,15 @@
+package com.devcollab.devcollab.config;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.Objects;
+
+public class SecurityUtils {
+
+    public static String getCurrentUserId() {
+        return (String) Objects.requireNonNull(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication())
+                        .getPrincipal();
+    }
+}
