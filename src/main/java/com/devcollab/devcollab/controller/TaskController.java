@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,17 +22,20 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
     public ResponseEntity<TaskResponseDTO> createTask(@Valid @RequestBody CreateTaskDTO dto) {
         String currentUserId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(dto, currentUserId));
     }
 
     @GetMapping("/project/{projectId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectId(@PathVariable String projectId) {
         return ResponseEntity.ok(taskService.getTasksByProject(projectId));
     }
 
     @GetMapping("/project/{projectId}/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectIdAndStatus(
             @PathVariable String projectId,
             @PathVariable String status) {
@@ -39,11 +43,13 @@ public class TaskController {
     }
 
     @GetMapping("/assignee/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByAssignee(@PathVariable String userId) {
         return ResponseEntity.ok(taskService.getTasksByAssignee(userId));
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
     public ResponseEntity<TaskResponseDTO> updateTask(
             @PathVariable String id,
             @RequestBody UpdateTaskDTO dto) {
@@ -51,6 +57,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TaskResponseDTO> deleteTask(@PathVariable String id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
