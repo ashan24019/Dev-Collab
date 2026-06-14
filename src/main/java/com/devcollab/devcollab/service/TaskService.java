@@ -26,19 +26,19 @@ public class TaskService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public TaskResponseDTO createTask(CreateTaskDTO dto) {
+    public TaskResponseDTO createTask(CreateTaskDTO dto, String createdById) {
         projectRepository.findById(dto.getProjectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + dto.getProjectId()));
 
-        userRepository.findById(dto.getCreatedById())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + dto.getCreatedById()));
+        userRepository.findById(createdById)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + createdById));
 
         if (dto.getAssignedToId() != null && !dto.getAssignedToId().isBlank()) {
             userRepository.findById(dto.getAssignedToId())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + dto.getAssignedToId()));
         }
 
-        Task task = TaskMapper.toTask(dto);
+        Task task = TaskMapper.toTask(dto, createdById);
         Task saved = taskRepository.save(task);
         return TaskMapper.toResponseDTO(saved);
     }

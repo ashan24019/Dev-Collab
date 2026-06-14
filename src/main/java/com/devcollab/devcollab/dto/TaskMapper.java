@@ -5,13 +5,13 @@ import com.devcollab.devcollab.model.Task;
 
 public class TaskMapper {
 
-    public static Task toTask(CreateTaskDTO dto) {
+    public static Task toTask(CreateTaskDTO dto, String createdById) {
         Task task = new Task();
 
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
         task.setProjectId(dto.getProjectId());
-        task.setCreatedById(dto.getCreatedById());
+        task.setCreatedById(createdById);
         task.setAssignedToId(dto.getAssignedToId());
         task.setPriority(dto.getPriority());
         task.setStatus(TaskStatus.TODO);

@@ -19,10 +19,6 @@ public class CreateTaskDTO {
     @NotBlank(message = "Project ID is required")
     private String projectId;
 
-    // TODO: Remove after JWT implementation - set from security context
-    @NotBlank(message = "Creator ID is required")
-    private String createdById;
-
     private String assignedToId;
 
     @NotNull(message = "Priority is required")

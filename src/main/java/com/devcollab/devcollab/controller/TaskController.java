@@ -1,5 +1,6 @@
 package com.devcollab.devcollab.controller;
 
+import com.devcollab.devcollab.config.SecurityUtils;
 import com.devcollab.devcollab.dto.CreateTaskDTO;
 import com.devcollab.devcollab.dto.TaskResponseDTO;
 import com.devcollab.devcollab.dto.UpdateTaskDTO;
@@ -21,7 +22,8 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<TaskResponseDTO> createTask(@Valid @RequestBody CreateTaskDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(dto));
+        String currentUserId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(dto, currentUserId));
     }
 
     @GetMapping("/project/{projectId}")
