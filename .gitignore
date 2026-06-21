@@ -32,6 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-application-secrets.properties
-application.properties
-application-*.properties
+#application-secrets.properties
+#application.properties
+#application-*.properties
