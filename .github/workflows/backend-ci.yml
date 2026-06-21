@@ -1,0 +1,36 @@
+name: Backend CI
+
+# on - defines triggers
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# jobs - defines the jobs to run, workflow can have multiple jobs. we have build-and-test job here
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn clean compile
+
+      - name: Run tests
+        run: mvn test
