@@ -18,6 +18,11 @@ jobs:
         ports:
           - 27017:27017
 
+    env:
+      SPRING_MONGODB_URI: mongodb://localhost:27017/devcollab_test
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_EXPIRATION: 86400000
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
