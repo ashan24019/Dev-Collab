@@ -1,15 +1,16 @@
 package com.devcollab.devcollab.service;
 
-import com.devcollab.devcollab.dto.CreateTaskDTO;
-import com.devcollab.devcollab.dto.TaskMapper;
-import com.devcollab.devcollab.dto.TaskResponseDTO;
-import com.devcollab.devcollab.dto.UpdateTaskDTO;
+import com.devcollab.devcollab.dto.*;
+import com.devcollab.devcollab.enums.TaskStatus;
 import com.devcollab.devcollab.exception.ResourceNotFoundException;
 import com.devcollab.devcollab.model.Task;
 import com.devcollab.devcollab.repository.ProjectRepository;
 import com.devcollab.devcollab.repository.TaskRepository;
 import com.devcollab.devcollab.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,14 +65,30 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public List<TaskResponseDTO> getTasksByProject(String projectId) {
+    public PageResponseDTO<TaskResponseDTO> getTasksByProject(String projectId, int page, int size) {
         projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + projectId));
 
-        return taskRepository.findByProjectId(projectId)
+        Pageable pageable =  PageRequest.of(page, size, Sort.by("priority").descending());
+
+        List<TaskResponseDTO> taskList =  taskRepository.findByProjectId(projectId,  pageable)
+                .getContent()
                 .stream()
                 .map(TaskMapper::toResponseDTO)
                 .collect(Collectors.toList());
+
+        long totalElements = taskRepository.count();
+        int totalPages = (int) Math.ceil((double) totalElements / (double) size);
+
+        return new PageResponseDTO<> (
+                taskList,
+                page,
+                size,
+                totalElements,
+                totalPages,
+                page + 1 < totalPages,
+                page > 0
+                );
 
     }
 
@@ -86,7 +103,7 @@ public class TaskService {
 
     }
 
-    public List<TaskResponseDTO> getTasksByProjectAndStatus(String projectId,String status) {
+    public List<TaskResponseDTO> getTasksByProjectAndStatus(String projectId, TaskStatus status) {
         projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + projectId));
 

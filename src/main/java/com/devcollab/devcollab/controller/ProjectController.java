@@ -1,6 +1,7 @@
 package com.devcollab.devcollab.controller;
 
 import com.devcollab.devcollab.dto.CreateProjectDTO;
+import com.devcollab.devcollab.dto.PageResponseDTO;
 import com.devcollab.devcollab.dto.ProjectResponseDTO;
 import com.devcollab.devcollab.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,8 +32,10 @@ public class ProjectController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
     @Operation(summary = "Get all projects", description = "Returns a list of all projects")
-    public ResponseEntity<List<ProjectResponseDTO>> getAllProjects() {
-        return ResponseEntity.ok(projectService.getAllProjects());
+    public ResponseEntity<PageResponseDTO<ProjectResponseDTO>> getAllProjects(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(projectService.getAllProjects(page, size));
     }
 
     @GetMapping("/{id}")
@@ -54,7 +57,10 @@ public class ProjectController {
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
     @Operation(summary = "Get projects by user", description = "Returns a list of projects for a specific user")
-    public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUser(@PathVariable String userId) {
-        return ResponseEntity.ok(projectService.getProjectsByUser(userId));
+    public ResponseEntity<PageResponseDTO<ProjectResponseDTO>> getProjectsByUser(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(projectService.getProjectsByUser(userId, page, size));
     }
 }

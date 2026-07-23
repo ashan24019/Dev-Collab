@@ -1,6 +1,7 @@
 package com.devcollab.devcollab.service;
 
 import com.devcollab.devcollab.dto.CreateProjectDTO;
+import com.devcollab.devcollab.dto.PageResponseDTO;
 import com.devcollab.devcollab.dto.ProjectMapper;
 import com.devcollab.devcollab.dto.ProjectResponseDTO;
 import com.devcollab.devcollab.exception.ResourceNotFoundException;
@@ -10,6 +11,11 @@ import com.devcollab.devcollab.repository.ProjectRepository;
 import com.devcollab.devcollab.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,11 +39,26 @@ public class ProjectService {
         return ProjectMapper.toResponseDTO(saved);
     }
 
-    public List<ProjectResponseDTO> getAllProjects() {
-        return projectRepository.findAll()
+    public PageResponseDTO<ProjectResponseDTO> getAllProjects(int page,  int size) {
+
+        Pageable pageable = PageRequest.of(page, size,  Sort.by("createdAt").descending());
+
+        List<ProjectResponseDTO> projectList =  projectRepository.findAll(pageable)
                 .stream()
                 .map(ProjectMapper :: toResponseDTO)
-                .collect(Collectors.toList());
+                .toList();
+        long totalElements = projectRepository.count();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return new PageResponseDTO<>(
+                projectList,
+                page,
+                size,
+                totalElements,
+                totalPages,
+                page + 1 < totalPages,
+                page > 0
+        );
     }
 
     public ProjectResponseDTO getProjectById(String id) {
@@ -60,16 +81,33 @@ public class ProjectService {
         return ProjectMapper.toResponseDTO(project);
     }
 
-    public List<ProjectResponseDTO> getProjectsByUser(String userId) {
+    public PageResponseDTO<ProjectResponseDTO> getProjectsByUser(String userId, int page, int size) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-        List<Project> asOwner = projectRepository.findByOwnerId(userId);
-        List<Project> asMember = projectRepository.findByMemberIdsContaining(userId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        return Stream.concat(asOwner.stream(), asMember.stream())
+        Page<Project> asOwner = projectRepository.findByOwnerId(userId, pageable);
+        Page<Project> asMember = projectRepository.findByMemberIdsContaining(userId, pageable);
+
+        List<ProjectResponseDTO> projectList = Stream.concat(
+                        asOwner.getContent().stream(),
+                        asMember.getContent().stream())
                 .distinct()
-                .map(ProjectMapper::toResponseDTO)
+                .map(ProjectMapper :: toResponseDTO)
                 .collect(Collectors.toList());
+
+        long totalElements = asOwner.getTotalElements() + asMember.getTotalElements();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return new PageResponseDTO<>(
+                projectList,
+                page,
+                size,
+                totalElements,
+                totalPages,
+                page + 1 < totalPages,
+                page > 0
+        );
     }
 }
