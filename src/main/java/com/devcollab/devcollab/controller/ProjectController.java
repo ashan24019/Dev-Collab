@@ -33,8 +33,8 @@ public class ProjectController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
     @Operation(summary = "Get all projects", description = "Returns a list of all projects")
     public ResponseEntity<PageResponseDTO<ProjectResponseDTO>> getAllProjects(
-            @RequestParam int page,
-            @RequestParam int size) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(projectService.getAllProjects(page, size));
     }
 
@@ -59,8 +59,8 @@ public class ProjectController {
     @Operation(summary = "Get projects by user", description = "Returns a list of projects for a specific user")
     public ResponseEntity<PageResponseDTO<ProjectResponseDTO>> getProjectsByUser(
             @PathVariable String userId,
-            @RequestParam int page,
-            @RequestParam int size) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(projectService.getProjectsByUser(userId, page, size));
     }
 }

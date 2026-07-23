@@ -39,8 +39,8 @@ public class TaskController {
     @Operation(summary = "Get Task by Project Id")
     public ResponseEntity<PageResponseDTO<TaskResponseDTO>> getTasksByProjectId(
             @PathVariable String projectId,
-            @RequestParam int page,
-            @RequestParam int size) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(taskService.getTasksByProject(projectId, page, size));
     }
 
