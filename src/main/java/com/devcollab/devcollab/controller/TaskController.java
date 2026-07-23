@@ -2,8 +2,10 @@ package com.devcollab.devcollab.controller;
 
 import com.devcollab.devcollab.config.SecurityUtils;
 import com.devcollab.devcollab.dto.CreateTaskDTO;
+import com.devcollab.devcollab.dto.PageResponseDTO;
 import com.devcollab.devcollab.dto.TaskResponseDTO;
 import com.devcollab.devcollab.dto.UpdateTaskDTO;
+import com.devcollab.devcollab.enums.TaskStatus;
 import com.devcollab.devcollab.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,8 +37,11 @@ public class TaskController {
     @GetMapping("/project/{projectId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
     @Operation(summary = "Get Task by Project Id")
-    public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectId(@PathVariable String projectId) {
-        return ResponseEntity.ok(taskService.getTasksByProject(projectId));
+    public ResponseEntity<PageResponseDTO<TaskResponseDTO>> getTasksByProjectId(
+            @PathVariable String projectId,
+            @RequestParam int page,
+            @RequestParam int size) {
+        return ResponseEntity.ok(taskService.getTasksByProject(projectId, page, size));
     }
 
     @GetMapping("/project/{projectId}/status/{status}")
@@ -44,7 +49,7 @@ public class TaskController {
     @Operation(summary = "Get Task by Project Id and Status")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectIdAndStatus(
             @PathVariable String projectId,
-            @PathVariable String status) {
+            @PathVariable TaskStatus status) {
         return ResponseEntity.ok(taskService.getTasksByProjectAndStatus(projectId, status));
     }
 
