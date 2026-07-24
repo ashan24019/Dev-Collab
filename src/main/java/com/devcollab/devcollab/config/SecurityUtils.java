@@ -1,5 +1,6 @@
 package com.devcollab.devcollab.config;
 
+import com.devcollab.devcollab.enums.UserRole;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Objects;
@@ -20,6 +21,6 @@ public class SecurityUtils {
                 .stream()
                 .findFirst()
                 .map(a-> Objects.requireNonNull(a.getAuthority()).replace("ROLE_", ""))
-                .orElse("MEMBER");
+                .orElse(UserRole.MEMBER.name());
     }
 }
