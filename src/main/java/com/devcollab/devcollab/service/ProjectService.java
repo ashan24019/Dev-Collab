@@ -4,6 +4,7 @@ import com.devcollab.devcollab.dto.CreateProjectDTO;
 import com.devcollab.devcollab.dto.PageResponseDTO;
 import com.devcollab.devcollab.dto.ProjectMapper;
 import com.devcollab.devcollab.dto.ProjectResponseDTO;
+import com.devcollab.devcollab.enums.UserRole;
 import com.devcollab.devcollab.exception.ResourceNotFoundException;
 import com.devcollab.devcollab.model.Project;
 import com.devcollab.devcollab.model.User;
@@ -39,14 +40,28 @@ public class ProjectService {
         return ProjectMapper.toResponseDTO(saved);
     }
 
-    public PageResponseDTO<ProjectResponseDTO> getAllProjects(int page,  int size) {
+    public PageResponseDTO<ProjectResponseDTO> getAllProjects(
+            String currentUserId,
+            String currentUserRole,
+            int page,
+            int size) {
+
+        List<ProjectResponseDTO> projectList;
 
         Pageable pageable = PageRequest.of(page, size,  Sort.by("createdAt").descending());
 
-        List<ProjectResponseDTO> projectList =  projectRepository.findAll(pageable)
-                .stream()
-                .map(ProjectMapper :: toResponseDTO)
-                .toList();
+        if (currentUserRole.equals("ADMIN")) {
+            projectList =  projectRepository.findAll(pageable)
+                    .stream()
+                    .map(ProjectMapper :: toResponseDTO)
+                    .toList();
+        } else {
+            projectList =  projectRepository.findByOwnerIdOrMemberIds(currentUserId, List.of(currentUserId), pageable)
+                    .stream()
+                    .map(ProjectMapper :: toResponseDTO)
+                    .toList();
+        }
+
         long totalElements = projectRepository.count();
         int totalPages = (int) Math.ceil((double) totalElements / size);
 

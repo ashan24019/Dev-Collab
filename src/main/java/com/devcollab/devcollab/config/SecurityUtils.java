@@ -12,4 +12,14 @@ public class SecurityUtils {
                         .getAuthentication())
                         .getPrincipal();
     }
+
+    public static String getCurrentUserRole() {
+        return Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getAuthorities()
+                .stream()
+                .findFirst()
+                .map(a-> Objects.requireNonNull(a.getAuthority()).replace("ROLE_", ""))
+                .orElse("MEMBER");
+    }
 }
