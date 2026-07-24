@@ -50,7 +50,7 @@ public class ProjectService {
 
         Pageable pageable = PageRequest.of(page, size,  Sort.by("createdAt").descending());
 
-        if (currentUserRole.equals("ADMIN")) {
+        if (currentUserRole.equals(UserRole.ADMIN.name())) {
             projectList =  projectRepository.findAll(pageable)
                     .stream()
                     .map(ProjectMapper :: toResponseDTO)
