@@ -1,8 +1,10 @@
 package com.devcollab.devcollab.controller;
 
+import com.devcollab.devcollab.config.SecurityUtils;
 import com.devcollab.devcollab.dto.CreateProjectDTO;
 import com.devcollab.devcollab.dto.PageResponseDTO;
 import com.devcollab.devcollab.dto.ProjectResponseDTO;
+import com.devcollab.devcollab.enums.UserRole;
 import com.devcollab.devcollab.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -35,7 +36,10 @@ public class ProjectController {
     public ResponseEntity<PageResponseDTO<ProjectResponseDTO>> getAllProjects(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(projectService.getAllProjects(page, size));
+        size = Math.min(size, 100);
+        String currentUserId = SecurityUtils.getCurrentUserId();
+        String currentUserRole = SecurityUtils.getCurrentUserRole();
+        return ResponseEntity.ok(projectService.getAllProjects(currentUserId, currentUserRole, page, size));
     }
 
     @GetMapping("/{id}")
@@ -61,6 +65,7 @@ public class ProjectController {
             @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        size = Math.min(size, 100);
         return ResponseEntity.ok(projectService.getProjectsByUser(userId, page, size));
     }
 }

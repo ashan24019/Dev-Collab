@@ -41,6 +41,7 @@ public class TaskController {
             @PathVariable String projectId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        size = Math.min(size, 100);
         return ResponseEntity.ok(taskService.getTasksByProject(projectId, page, size));
     }
 
