@@ -47,23 +47,29 @@ public class ProjectService {
             int size) {
 
         List<ProjectResponseDTO> projectList;
+        long totalElements;
+        int totalPages;
 
         Pageable pageable = PageRequest.of(page, size,  Sort.by("createdAt").descending());
 
         if (currentUserRole.equals(UserRole.ADMIN.name())) {
-            projectList =  projectRepository.findAll(pageable)
+            Page<Project> projectPage = projectRepository.findAll(pageable);
+            projectList =  projectPage
                     .stream()
                     .map(ProjectMapper :: toResponseDTO)
                     .toList();
-        } else {
-            projectList =  projectRepository.findByOwnerIdOrMemberIds(currentUserId, List.of(currentUserId), pageable)
-                    .stream()
-                    .map(ProjectMapper :: toResponseDTO)
-                    .toList();
-        }
+            totalElements = projectPage.getTotalElements();
+            totalPages = projectPage.getTotalPages();
 
-        long totalElements = projectRepository.count();
-        int totalPages = (int) Math.ceil((double) totalElements / size);
+        } else {
+            Page<Project> projectPage =  projectRepository.findByOwnerIdOrMemberIds(currentUserId, List.of(currentUserId), pageable);
+            projectList = projectPage
+                    .stream()
+                    .map(ProjectMapper :: toResponseDTO)
+                    .toList();
+            totalElements = projectPage.getTotalElements();
+            totalPages = projectPage.getTotalPages();
+        }
 
         return new PageResponseDTO<>(
                 projectList,
