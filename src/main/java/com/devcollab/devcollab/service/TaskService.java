@@ -1,6 +1,7 @@
 package com.devcollab.devcollab.service;
 
 import com.devcollab.devcollab.dto.*;
+import com.devcollab.devcollab.enums.TaskPriority;
 import com.devcollab.devcollab.enums.TaskStatus;
 import com.devcollab.devcollab.exception.ResourceNotFoundException;
 import com.devcollab.devcollab.model.Task;
@@ -11,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +30,9 @@ public class TaskService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     public TaskResponseDTO createTask(CreateTaskDTO dto, String createdById) {
         projectRepository.findById(dto.getProjectId())
@@ -111,5 +118,51 @@ public class TaskService {
                 .stream()
                 .map(TaskMapper::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    public PageResponseDTO<TaskResponseDTO> searchTask(
+            String projectId,
+            TaskStatus status,
+            TaskPriority priority,
+            int page,
+            int size) {
+
+        Query query = new Query();
+
+        if (projectId == null || projectId.isBlank()) {
+            throw new ResourceNotFoundException("Project Id is required");
+        }
+
+        query.addCriteria(Criteria.where("projectId").is(projectId));
+
+        if (status != null) {
+            query.addCriteria(Criteria.where("status").is(status));
+        }
+        if (priority != null) {
+            query.addCriteria(Criteria.where("priority").is(priority));
+        }
+
+        long totalElements = mongoTemplate.count(query, Task.class);
+
+        Pageable pageable =  PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        query.with(pageable);
+
+        List<TaskResponseDTO> task = mongoTemplate.find(query, Task.class)
+                .stream()
+                .map(TaskMapper::toResponseDTO)
+                .collect(Collectors.toList());
+
+        int totalPages = (int) Math.ceil((double) totalElements / (double) size);
+
+        return new PageResponseDTO<> (
+                task,
+                page,
+                size,
+                totalElements,
+                totalPages,
+                page + 1 < totalPages,
+                page > 0
+                );
     }
 }

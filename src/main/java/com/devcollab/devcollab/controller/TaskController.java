@@ -5,6 +5,7 @@ import com.devcollab.devcollab.dto.CreateTaskDTO;
 import com.devcollab.devcollab.dto.PageResponseDTO;
 import com.devcollab.devcollab.dto.TaskResponseDTO;
 import com.devcollab.devcollab.dto.UpdateTaskDTO;
+import com.devcollab.devcollab.enums.TaskPriority;
 import com.devcollab.devcollab.enums.TaskStatus;
 import com.devcollab.devcollab.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,5 +77,18 @@ public class TaskController {
     public ResponseEntity<TaskResponseDTO> deleteTask(@PathVariable String id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/project/{projectId}/search")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEMBER')")
+    @Operation(summary = "Search tasks by project with optional filters")
+    public ResponseEntity<PageResponseDTO<TaskResponseDTO>> searchTask(
+            @PathVariable String projectId,
+            @RequestParam(required = false) TaskStatus status,
+            @RequestParam(required = false)TaskPriority priority,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        size = Math.min(size, 100);
+        return ResponseEntity.ok(taskService.searchTask(projectId, status, priority, page, size));
     }
 }
