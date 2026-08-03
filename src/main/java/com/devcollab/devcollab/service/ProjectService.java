@@ -43,42 +43,42 @@ public class ProjectService {
     public PageResponseDTO<ProjectResponseDTO> getAllProjects(
             String currentUserId,
             String currentUserRole,
+            String name,
             int page,
             int size) {
 
-        List<ProjectResponseDTO> projectList;
-        long totalElements;
-        int totalPages;
-
         Pageable pageable = PageRequest.of(page, size,  Sort.by("createdAt").descending());
+        Page<Project> projectPage;
 
         if (currentUserRole.equals(UserRole.ADMIN.name())) {
-            Page<Project> projectPage = projectRepository.findAll(pageable);
-            projectList =  projectPage
-                    .stream()
-                    .map(ProjectMapper :: toResponseDTO)
-                    .toList();
-            totalElements = projectPage.getTotalElements();
-            totalPages = projectPage.getTotalPages();
-
+            if (name != null && !name.isBlank()) {
+                projectPage = projectRepository.findByNameContainingIgnoreCase(name, pageable);
+            } else {
+                projectPage = projectRepository.findAll(pageable);
+            }
         } else {
-            Page<Project> projectPage =  projectRepository.findByOwnerIdOrMemberIds(currentUserId, List.of(currentUserId), pageable);
-            projectList = projectPage
-                    .stream()
-                    .map(ProjectMapper :: toResponseDTO)
-                    .toList();
-            totalElements = projectPage.getTotalElements();
-            totalPages = projectPage.getTotalPages();
+            if (name != null && !name.isBlank()) {
+                projectPage = projectRepository
+                        .findByOwnerIdOrMemberIdsAndNameContainingIgnoreCase(
+                                currentUserId, List.of(currentUserId), name, pageable);
+            } else {
+                projectPage = projectRepository
+                        .findByOwnerIdOrMemberIds(currentUserId, List.of(currentUserId), pageable);
+            }
         }
+        List<ProjectResponseDTO> projectList = projectPage.getContent()
+                .stream()
+                .map(ProjectMapper :: toResponseDTO)
+                .toList();
 
         return new PageResponseDTO<>(
                 projectList,
                 page,
                 size,
-                totalElements,
-                totalPages,
-                page + 1 < totalPages,
-                page > 0
+                projectPage.getTotalPages(),
+                projectPage.getTotalPages(),
+                projectPage.hasNext(),
+                projectPage.hasPrevious()
         );
     }
 

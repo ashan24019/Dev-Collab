@@ -13,4 +13,6 @@ public interface ProjectRepository extends MongoRepository<Project, String> {
     Page<Project> findByMemberIdsContaining(String userId, Pageable pageable);
     List<Project> findByStatus(ProjectStatus status);
     Page<Project> findByOwnerIdOrMemberIds(String ownerId, List<String> memberIds, Pageable pageable);
+    Page<Project> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    Page<Project> findByOwnerIdOrMemberIdsAndNameContainingIgnoreCase(String ownerId, List<String> memberIds, String name, Pageable pageable);
 }

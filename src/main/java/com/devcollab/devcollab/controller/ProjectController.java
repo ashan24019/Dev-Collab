@@ -35,11 +35,12 @@ public class ProjectController {
     @Operation(summary = "Get all projects", description = "Returns a list of all projects")
     public ResponseEntity<PageResponseDTO<ProjectResponseDTO>> getAllProjects(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String name) {
         size = Math.min(size, 100);
         String currentUserId = SecurityUtils.getCurrentUserId();
         String currentUserRole = SecurityUtils.getCurrentUserRole();
-        return ResponseEntity.ok(projectService.getAllProjects(currentUserId, currentUserRole, page, size));
+        return ResponseEntity.ok(projectService.getAllProjects(currentUserId, currentUserRole,name, page, size));
     }
 
     @GetMapping("/{id}")
