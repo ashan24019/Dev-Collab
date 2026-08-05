@@ -75,7 +75,7 @@ public class ProjectService {
                 projectList,
                 page,
                 size,
-                projectPage.getTotalPages(),
+                projectPage.getTotalElements(),
                 projectPage.getTotalPages(),
                 projectPage.hasNext(),
                 projectPage.hasPrevious()
