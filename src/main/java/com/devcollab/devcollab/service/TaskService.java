@@ -15,9 +15,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +32,9 @@ public class TaskService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -48,7 +53,10 @@ public class TaskService {
 
         Task task = TaskMapper.toTask(dto, createdById);
         Task saved = taskRepository.save(task);
-        return TaskMapper.toResponseDTO(saved);
+        TaskResponseDTO taskResponseDTO = TaskMapper.toResponseDTO(saved);
+        messagingTemplate.convertAndSend("/topic/project/"+ taskResponseDTO.getProjectId() + "/task", taskResponseDTO);
+
+        return taskResponseDTO;
     }
 
     public TaskResponseDTO updateTask(String id, UpdateTaskDTO dto) {
@@ -63,13 +71,20 @@ public class TaskService {
         if(dto.getDueDate() != null) task.setDueDate(dto.getDueDate());
 
         Task updated = taskRepository.save(task);
-        return TaskMapper.toResponseDTO(updated);
+        TaskResponseDTO taskResponseDTO =  TaskMapper.toResponseDTO(updated);
+        messagingTemplate.convertAndSend("/topic/project/"+ taskResponseDTO.getProjectId() + "/task", taskResponseDTO);
+
+        return taskResponseDTO;
     }
 
     public void deleteTask(String id) {
-        taskRepository.findById(id)
+        Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+        String projectId = task.getProjectId();
         taskRepository.deleteById(id);
+
+        Map<String, String> message = Map.of("action", "DELETED", "taskId", id);
+        messagingTemplate.convertAndSend("/topic/project/"+ projectId + "/task", message);
     }
 
     public PageResponseDTO<TaskResponseDTO> getTasksByProject(String projectId, int page, int size) {
